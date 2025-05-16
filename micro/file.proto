@@ -1,0 +1,79 @@
+syntax = "proto3";
+option go_package = "./;api";
+
+
+enum Statuses {
+    Ok = 0;
+    Error = 1;
+}
+
+enum LighStates {
+    On = 0;
+    Off = 1;
+}
+
+enum DoorLockStates {
+    Open = 0;
+    Close = 1;
+}
+
+enum ChannelStates {
+    ChannelOn = 0;
+    ChannelOff = 1;
+}
+
+enum States {
+    LightOn = 0;
+    LightOff = 1;
+    DoorLockOpen = 2;
+    DoorLockClose = 3;
+    Channel1On = 4;
+    Channel1Off = 5;
+    Channel2On = 6;
+    Channel2Off = 7;
+}
+
+message IdentifyRequest {
+    string Token = 1;
+}
+
+message GetState {} 
+
+message GetInfo {}
+
+message SetState {
+    States state = 1;
+}
+
+message State {
+    LighStates light_on = 1;
+    DoorLockStates door_lock = 2;
+    ChannelStates channel_1 = 3;
+    ChannelStates channel_2 = 4;
+    float temperature = 5;
+    float pressure = 6;
+    float humidity = 7;
+}
+
+message Info {
+    string ip = 1;
+    string mac = 2;
+    string ble_name = 3;
+    string token = 4;
+}
+
+message ClientMessage {
+    oneof message {
+        GetInfo get_info = 1;
+        SetState set_state = 2;
+        GetState get_state = 3;
+    }
+}
+
+message ControllerResponse {
+    oneof response {
+        Info info = 1;
+        State state = 2;
+        Statuses status = 3;
+    }
+}
