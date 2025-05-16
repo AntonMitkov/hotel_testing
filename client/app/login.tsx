@@ -28,7 +28,7 @@ export default function LoginScreen() {
     return (
     <View style={styles.container}>
       {/* <Image source={logo} style={styles.logo} /> */}
-      <Text style={styles.title}>Login</Text>
+      <Text className='bg-slate-100 rounded-xl'>Login</Text>
       <Formik
         validationSchema={loginValidationSchema}
         initialValues={{ email: '', password: '' }}
