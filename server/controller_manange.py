@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../micro')
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from starlette import status
@@ -31,3 +34,14 @@ def light_off():
     conn = Connection('192.168.1.100', 7000)
     conn.change_state(data.States.LightOff)
     
+
+@router.get('/lock_close')
+def lock_close():
+    conn = Connection('192.168.1.100', 7000)
+    conn.change_state(data.States.DoorLockClose)
+
+
+@router.get('/lock_open')
+def lock_close():
+    conn = Connection('192.168.1.100', 7000)
+    conn.change_state(data.States.DoorLockOpen)
