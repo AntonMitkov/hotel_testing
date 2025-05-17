@@ -1,4 +1,7 @@
 import sys
+
+import websockets
+
 sys.path.append('../micro')
 
 from fastapi import Depends, FastAPI, HTTPException, status

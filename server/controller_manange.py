@@ -20,28 +20,28 @@ router = APIRouter(
 @router.get('/state')
 def get_state():
     conn = Connection('192.168.1.100', 7000)
-    return(conn.get_all_states())
+    return conn.get_all_states()
 
 
-@router.get('/light_on')
+@router.post('/light_on')
 def light_on():
     conn = Connection('192.168.1.100', 7000)
     conn.change_state(data.States.LightOn)
 
 
-@router.get('/light_off')
+@router.post('/light_off')
 def light_off():
     conn = Connection('192.168.1.100', 7000)
     conn.change_state(data.States.LightOff)
     
 
-@router.get('/lock_close')
+@router.post('/lock_close')
 def lock_close():
     conn = Connection('192.168.1.100', 7000)
     conn.change_state(data.States.DoorLockClose)
 
 
-@router.get('/lock_open')
+@router.post('/lock_open')
 def lock_close():
     conn = Connection('192.168.1.100', 7000)
     conn.change_state(data.States.DoorLockOpen)
