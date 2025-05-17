@@ -9,14 +9,14 @@ import { getCookie, removeCookie } from 'typescript-cookie'
 
 const token = getCookie('bearer-hotel');
 
-const open_door: () => void() => {
-    const response = await fetch('http://127.0.0.1:8000/admin/all_users', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
+const open_door = async (): Promise<void> => {
+    const response = await fetch('http://127.0.0.1:8000/controller/lock_open', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        }
+    });
 }
 
 const get_info = async (navigate: ReturnType<typeof useNavigate>) => {
@@ -102,7 +102,7 @@ const Rooms: React.FC = () => {
             <Divider />
             <Row gutter={40} wrap>
                 <Col span={18}>
-                <Flex wrap gap={20} className='h-96 overflow-x-scroll' vertical>
+                <Flex wrap gap={20} className='h-[480px] overflow-x-scroll' vertical>
                     {Array.from({ length: 12 }, (_, i) => (
                     <Flex className='gap-4' key={i}>
                         {}
@@ -111,7 +111,7 @@ const Rooms: React.FC = () => {
                             <p> <ThermostatIcon sx={{ fontSize: 20 }}/> Температура: <b>{Math.floor(Math.random()*15)+10}°C</b></p>
                             <p> <WaterDropIcon sx={{ fontSize: 15 }} className='mr-1 ml-0.5'/> Влажность <b>{Math.floor(Math.random()*20)+60}%</b></p>
                             <p> <SpeedIcon sx={{ fontSize: 20 }}/> Давление <b>{Math.floor(Math.random()*50)+730} мм.рт.ст.</b></p>
-                            <Button onClick={() => open_door()}>Открыть дверь</Button>
+                            <Button className='mt-3' onClick={() => open_door()}>Открыть дверь</Button>
                         </Card>
                         </Badge.Ribbon>                    
                     </Flex>

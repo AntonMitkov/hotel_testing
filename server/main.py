@@ -11,7 +11,6 @@ from auth import get_current_user
 import admin
 import checkin
 import rooms
-import controller_manange
 
 app = FastAPI()
 app.include_router(auth.router)
