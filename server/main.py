@@ -15,6 +15,7 @@ import admin
 import checkin
 import controller_manange
 import rooms
+import controller_manange
 
 app = FastAPI()
 app.include_router(auth.router)
