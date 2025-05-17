@@ -4,7 +4,7 @@ from starlette import status
 from database import SessionLocal
 from typing import Annotated
 from fastapi import Depends
-from models import Users, CheckIn
+from models import Users, CheckIn, UserInfo
 from auth import get_current_user
 from pydantic import BaseModel
 from datetime import date
@@ -30,7 +30,7 @@ def get_db():
 db_dependency = Annotated[Session, Depends(get_db)]
 user_dependency = Annotated[dict, Depends(get_current_user)]
 
-@router.post('/', status_code=status.HTTP_200_OK)
+@router.post('/new', status_code=status.HTTP_200_OK)
 def checkin(data: CheckInPydantic, user: user_dependency, db: db_dependency):
     if not user:
         raise HTTPException(status_code=401, detail="Authentification failed")
@@ -47,3 +47,28 @@ def checkin(data: CheckInPydantic, user: user_dependency, db: db_dependency):
     db.commit()
     db.refresh(checkin_obj)
     return checkin_obj
+
+@router.get('/all', status_code=status.HTTP_200_OK)
+def get_all(user: user_dependency, db: db_dependency):
+    if not user:
+        raise HTTPException(status_code=401, detail="Authentification failed")
+    if user['is_admin'] == 0:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions"
+        )
+    results = db.query(CheckIn, UserInfo).join(UserInfo, CheckIn.user_id == UserInfo.user_id).all()
+    return [
+        {
+            "id": c.id,
+            "user_id": c.user_id,
+            "first_name": u.first_name,
+            "last_name": u.last_name,
+            "email": u.email,
+            "phone_number": u.phone_number,
+            "start_date": c.start_date.date(),
+            "end_date": c.end_date.date()
+
+        }
+        for c, u in results
+    ]

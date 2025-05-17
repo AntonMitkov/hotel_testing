@@ -10,11 +10,13 @@ import auth
 from auth import get_current_user
 import admin
 import checkin
+import rooms
 
 app = FastAPI()
 app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(checkin.router)
+app.include_router(rooms.router)
 
 origins = [
     "http://localhost.tiangolo.com",

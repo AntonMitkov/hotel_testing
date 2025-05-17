@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from starlette import status
 from database import SessionLocal
-from models import Users
+from models import Users, UserInfo
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -39,6 +39,11 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+class UserInfoPydantic(BaseModel):
+    first_name: str
+    last_name: str
+    email: str
+    phone_number: str
 
 def get_db():
     db = SessionLocal()
@@ -113,3 +118,29 @@ def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
         return {'username': username, 'id': user_id, 'is_admin': is_admin}
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Colud not validate user')
+    
+
+
+user_dependency = Annotated[dict, Depends(get_current_user)]
+@router.post('/add_info', status_code=status.HTTP_201_CREATED)
+def add_user_info(
+    user_info: UserInfoPydantic,
+    user: user_dependency,
+    db: Session = db_dependency
+):
+    if not user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='User not found')
+    
+    user_info_obj = UserInfo(
+        user_id=user['id'],
+        first_name=user_info.first_name,
+        last_name=user_info.last_name,
+        email=user_info.email,
+        phone_number=user_info.phone_number
+    )
+    
+    db.add(user_info_obj)
+    db.commit()
+    db.refresh(user_info_obj)
+    
+    return {'message': 'User info added successfully'}
