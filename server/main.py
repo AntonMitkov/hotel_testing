@@ -1,6 +1,3 @@
-import sys
-sys.path.append('../micro')
-
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,7 +10,6 @@ import auth
 from auth import get_current_user
 import admin
 import checkin
-import controller_manange
 import rooms
 import controller_manange
 
@@ -22,7 +18,6 @@ app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(checkin.router)
 app.include_router(rooms.router)
-app.include_router(controller_manange.router)
 
 origins = [
     "http://localhost.tiangolo.com",
