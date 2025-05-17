@@ -1,7 +1,9 @@
-import { Image } from 'expo-image';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { Redirect, Link } from 'expo-router';
+import { ActivityIndicator, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import { useState } from 'react';
+import { useAuth, save } from '@/hooks/useAuth';
 
 const loginValidationSchema = yup.object().shape({
   email: yup
@@ -14,21 +16,42 @@ const loginValidationSchema = yup.object().shape({
     .required('Password is required'),
 });
 
+const inputContainerStyle = "bg-violet-200 rounded-xl px-4 py-2 w-full flex-row mb-2 border";
+const inputStyle = "flex-1 w-full text-black";
+const errorStyle = "text-red-500 self-start mb-4";
+
 export default function LoginScreen() {
-    // const { token, user, saveToken, saveUser } = useAuth();
-    // const navigation = useNavigation();
+  const [data, setData] = useState([]);
+  const [status, setStatus] = useState(0);
   function submit() {
-      console.log("auth");
+    alert("Submitted to server");
   }
 
-  function handleSubmit() {
-    console.log("gouda");
-  }
-    
-    return (
-    <View style={styles.container}>
-      {/* <Image source={logo} style={styles.logo} /> */}
-      <Text className="bg-amber-500">Login</Text>
+  // async function submit({ email, password }: { email: string, password: string }) {
+  //     console.error(email, password);
+  //     await fetch("hackathon.lapppse.xyz/auth/login", {
+  //       method: "POST",
+  //       headers: new Headers({
+  //         email: email,
+  //         password: password
+  //       })
+  //     })
+  //       .then((res) => {
+  //         setStatus(res.status);
+  //         if (res.status == 200) {
+  //           res.text().then((text) => {
+  //             setData(text);
+  //             save("HotelHelperBearerToken", text);
+  //           });
+  //         }
+  //       });
+  // }
+
+
+
+  return (
+    <View className="flex-1 px-6 bg-white items-center justify-center">
+      <Text className="p-6 font-bold text-xl">Welcome again!</Text>
       <Formik
         validationSchema={loginValidationSchema}
         initialValues={{ email: '', password: '' }}
@@ -44,10 +67,9 @@ export default function LoginScreen() {
           isValid,
         }) => (
           <>
-            <View style={styles.inputContainer}>
-              {/* <Icon name="mail-outline" size={25} style={styles.icon} /> */}
+            <View className={inputContainerStyle}>
               <TextInput
-                style={styles.input}
+                className={inputStyle}
                 placeholder="Email"
                 keyboardType="email-address"
                 onChangeText={handleChange('email')}
@@ -55,13 +77,12 @@ export default function LoginScreen() {
                 value={values.email}
               />
             </View>
-            {errors.email && touched.email && (
-              <Text style={styles.errorText}>{errors.email}</Text>
-            )}
-            <View style={styles.inputContainer}>
-              {/* <Icon name="lock-closed-outline" size={25} style={styles.icon} /> */}
+            {(errors.email && touched.email) ? (
+              <Text className={errorStyle}>{errors.email}</Text>
+            ) : null}
+            <View className={inputContainerStyle}>
               <TextInput
-                style={styles.input}
+                className={inputStyle}
                 placeholder="Password"
                 secureTextEntry
                 onChangeText={handleChange('password')}
@@ -69,97 +90,22 @@ export default function LoginScreen() {
                 value={values.password}
               />
             </View>
-            {errors.password && touched.password && (
-              <Text style={styles.errorText}>{errors.password}</Text>
-            )}
-            // TODO:
-            {/* <TouchableOpacity onPress={() => navigation.navigate('Forget')}>
-              <Text style={styles.forgotPassword}>Forgot Password?</Text>
-            </TouchableOpacity> */}
+            {(errors.password && touched.password) ? (
+              <Text className={errorStyle}>{errors.password}</Text>
+            ) : null}
+            <Link href="/register">
+              Don't have an account yet? <Text className="text-blue-500">Register</Text>
+            </Link>
             <TouchableOpacity
-              style={styles.button}
-              // onPress={handleSubmit}
+              className="w-full p-4 bg-violet-500 rounded-xl border mt-6 disabled:bg-violet-800"
+              onPress={handleSubmit}
               disabled={!isValid}
             >
-              <Text style={styles.buttonText}>Login</Text>
+              <Text className="text-center font-bold text-white text-xl">Login</Text>
             </TouchableOpacity>
-            // TODO:
-            {/* <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-              <Text style={styles.signUp}>
-                Don't have an account? <Text style={styles.signUpLink}>Sign Up</Text>
-              </Text>
-            </TouchableOpacity> */}
           </>
         )}
       </Formik>
-    </View>
+  </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
-  },
-  logo: {
-    height: 200,
-    width: 200,
-    resizeMode: 'contain',
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 32,
-    marginBottom: 40,
-    fontWeight: 'bold',
-    color: 'black',
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-    height: 50,
-    backgroundColor: '#f1f1f1',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 20,
-  },
-  icon: {
-    marginRight: 10,
-  },
-  input: {
-    flex: 1,
-    height: '100%',
-  },
-  forgotPassword: {
-    alignSelf: 'flex-end',
-    marginBottom: 20,
-    color: '#000',
-  },
-  button: {
-    width: '100%',
-    height: 50,
-    backgroundColor: '#1E90FF',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-  },
-  signUp: {
-    color: '#000',
-  },
-  signUpLink: {
-    color: '#1E90FF',
-  },
-  errorText: {
-    color: 'red',
-    alignSelf: 'flex-start',
-    marginBottom: 10,
-  },
-});
