@@ -81,7 +81,7 @@ def login_for_access_token(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate a user"
         )
-    token = create_access_token(user.username, user.id, user.is_admin, timedelta(minutes=20))
+    token = create_access_token(user.username, user.id, user.is_admin, timedelta(days=7))
     print(user.is_admin)
     return {"access_token": token, "token_type": "bearer"}
 
