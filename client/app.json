@@ -9,14 +9,31 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses the location to use bluetooth",
+        "NSLocationTemporaryUsageDescriptionDictionary": "This app uses the location to use bluetooth",
+        "NSLocationWhenInUseUsageDescription": "This app uses the location to use bluetooth"
+      },
+      "bundleIdentifier": "com.anonymous.Hotel"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "permissions": [
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.BLUETOOTH_ADVERTISE",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_ADMIN"
+      ],
+      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.Hotel"
     },
     "web": {
       "bundler": "metro",
@@ -40,10 +57,27 @@
           "configureAndroidBackup": true,
           "faceIDPermission": "Allow Hotel helper to access your Face ID biometric data."
         }
+      ],
+      [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": true,
+          "modes": [
+            "peripheral",
+            "central"
+          ],
+          "bluetoothAlwaysPermission": "Allow $(PRODUCT_NAME) to connect to bluetooth devices"
+        }
       ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "82d8618c-2ec7-4d34-a946-d4a03551be46"
+      }
     }
   }
 }

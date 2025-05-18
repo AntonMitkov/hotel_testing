@@ -16,36 +16,34 @@ const loginValidationSchema = yup.object().shape({
     .required('Password is required'),
 });
 
-const inputContainerStyle = "bg-violet-200 rounded-xl px-4 py-2 w-full flex-row mb-2 border";
+const inputContainerStyle = "bg-violet-100 rounded-xl px-4 py-2 w-full flex-row mb-2";
 const inputStyle = "flex-1 w-full text-black";
 const errorStyle = "text-red-500 self-start mb-4";
 
 export default function LoginScreen() {
   const [data, setData] = useState([]);
   const [status, setStatus] = useState(0);
-  function submit() {
-    alert("Submitted to server");
-  }
+  const [token, setToken] = useState("");
 
-  // async function submit({ email, password }: { email: string, password: string }) {
-  //     console.error(email, password);
-  //     await fetch("hackathon.lapppse.xyz/auth/login", {
-  //       method: "POST",
-  //       headers: new Headers({
-  //         email: email,
-  //         password: password
-  //       })
-  //     })
-  //       .then((res) => {
-  //         setStatus(res.status);
-  //         if (res.status == 200) {
-  //           res.text().then((text) => {
-  //             setData(text);
-  //             save("HotelHelperBearerToken", text);
-  //           });
-  //         }
-  //       });
-  // }
+  async function login({ email, password }: { email: string, password: string }) {
+      console.error(email, password);
+      await fetch("hackathon.lapppse.xyz/auth/login", {
+        method: "POST",
+        headers: new Headers({
+          email: email,
+          password: password
+        })
+      })
+        .then((res) => {
+          setStatus(res.status);
+          if (res.status == 200) {
+            res.text().then((text) => {
+              setToken(text);
+              save("HotelHelperBearerToken", text);
+            });
+          }
+        });
+  }
 
 
 
@@ -55,7 +53,7 @@ export default function LoginScreen() {
       <Formik
         validationSchema={loginValidationSchema}
         initialValues={{ email: '', password: '' }}
-        onSubmit={submit}
+        onSubmit={login}
       >
         {({
           handleChange,

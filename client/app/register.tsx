@@ -1,4 +1,3 @@
-import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Formik } from 'formik';
@@ -22,7 +21,7 @@ const registerValidationSchema = yup.object().shape({
     .required('Password is required'),
 });
 
-const inputContainerStyle = "bg-violet-200 rounded-xl px-4 py-2 w-full flex-row mb-2 border";
+const inputContainerStyle = "bg-violet-100 rounded-xl px-4 py-2 w-full flex-row mb-2";
 const inputStyle = "flex-1 w-full text-black";
 const errorStyle = "text-red-500 self-start mb-4";
 

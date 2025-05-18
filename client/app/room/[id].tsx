@@ -26,8 +26,8 @@ export default function RoomId() {
                 </Text>
             </View>
             <View className="p-4 flex-col gap-6">
-                <RoomData title="Humidity" value={humidity} icon={<Ionicons name="thermometer" />} />
-                <RoomData title="Pressure" value={pressure} icon={<Ionicons name="barbell" />} />
+                <RoomData title="Humidity" value={humidity} icon={<Ionicons name="thermometer-outline" />} />
+                <RoomData title="Pressure" value={pressure} icon={<Ionicons name="speedometer-outline" />} />
             </View>
             <Button
                 title={`${door ? "Close" : "Open"} door`}

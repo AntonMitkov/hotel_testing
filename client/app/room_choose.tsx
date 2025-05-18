@@ -1,21 +1,31 @@
-import { Image } from 'expo-image';
-import { Link } from 'expo-router';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { Formik } from 'formik';
-import * as yup from 'yup';
-import { useEffect } from 'react';
+import { View, Text, FlatList } from 'react-native';
 import { Room } from '@/components/Room';
+import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
+    // const [loading, setLoading] = useState(false);
+    // const [data, setData] = useState([]);
+    // useEffect(() => {
+    //     async () => {
+    //         await fetch("hackathon.lapppse.xyz/rooms", {
+    //             method: "GET",
+    //             headers: new Headers({
+    //             })
+    //         });
+    //     }
+    // }, []);
+    // let rooms: number[] = [1, 2, 3];
+    // if (rooms.length === 0) {
+    //     return null;
+    // }
 
 export default function RoomChooseScreen() {
-    let rooms = [1, 2, 3];
-    if (rooms.length === 0) {
-        return null;
-    }
+    const rooms = [1, 2, 3];
 
     let rooms_view = [];
     for (let i = 0; i < rooms.length; i++) {
-        rooms_view.push(
-            <Room id={rooms[i]} onPress={() => {console.error('gouda');}}/>)
+        rooms_view.push((
+            <Room id={rooms[i].toString()} />
+        ));
     }
 
     return (
@@ -24,7 +34,15 @@ export default function RoomChooseScreen() {
                 Your rooms:
             </Text>
             <View className="flex-col justify-start gap-4 h-full w-full">
-                {rooms_view}
+                <FlatList
+                    data={rooms}
+                    keyExtractor={(number) => number.toString()}
+                    renderItem={({item}) => (
+                        <View className="mb-4">
+                        <Room id={item.toString()} />
+                        </View>
+                    )}
+                />
             </View>
         </View>
     )

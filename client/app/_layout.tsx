@@ -14,7 +14,7 @@ export default function RootLayout() {
 
   return (
     <Stack>
-      <Stack.Screen name="login" />
+      <Stack.Screen name="test" />
       <Stack.Screen name="+not-found" />
     </Stack>
   );
