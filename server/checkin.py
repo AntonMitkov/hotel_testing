@@ -1,3 +1,4 @@
+import random
 from datetime import timedelta, date
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
@@ -7,6 +8,7 @@ from starlette import status
 from database import SessionLocal
 from models import Users, CheckIn, UserInfo  # Make sure UserInfo is imported
 from auth import get_current_user
+from sqlalchemy import text
 
 router = APIRouter(
     prefix='/checkin',
@@ -35,17 +37,34 @@ def create_checkin(data: CreateNewCheckin, db: db_dependency, user: dict = Depen
         raise HTTPException(status_code=401, detail="Authentification failed")
     if user['is_admin'] == 0:
         raise HTTPException(status_code=403, detail="Not enough permissions")
-    
+
+    # Получаем список доступных комнат
+    available_rooms = db.execute(
+        text("SELECT room_number FROM rooms WHERE is_available = 1")
+    ).fetchall()
+    if not available_rooms:
+        raise HTTPException(status_code=400, detail="Нет доступных комнат")
+
+    # Случайно выбираем комнату
+    chosen_room = random.choice(available_rooms)[0]
+
+    # Обновляем статус выбранной комнаты на "занята"
+    db.execute(
+        text("UPDATE rooms SET is_available = 0 WHERE room_number = :room_number"),
+        {"room_number": chosen_room}
+    )
+
     checkin = CheckIn(
         user_id=user['id'],
+        room_number=chosen_room,
         start_date=data.start_date,
         end_date=data.end_date
     )
-    
+
     db.add(checkin)
     db.commit()
     db.refresh(checkin)
-    
+
     return checkin
 
 
@@ -69,6 +88,7 @@ def get_all_checkins(db: db_dependency, user: dict = Depends(get_current_user)):
 
         merged = {
             'id': checkin_dict['id'],
+            'room_number': checkin_dict['room_number'],
             'first_name': userinfo_dict['first_name'],
             'last_name': userinfo_dict['last_name'],
             'email': userinfo_dict['email'],
