@@ -5,6 +5,7 @@ import DoorBackIcon from '@mui/icons-material/DoorBack';
 import Rooms from '../pages/rooms'; // Change this path as needed
 import TestPage from './bookings'; // Make sure this file exists
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Analytics from './analytics';
 
 const { Content, Sider } = Layout;
 
@@ -22,7 +23,7 @@ const items = [
   {
     key: '3',
     icon: <UploadOutlined />,
-    label: 'Other',
+    label: 'Analytics',
   },
 ];
 
@@ -43,7 +44,7 @@ class MainScreen extends Component {
       case '2':
         return <TestPage />;
       default:
-        return <div>Other Page</div>;
+        return <Analytics />;
     }
   };
 

@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Flex, Card, Divider, Col, Row, Badge, Button, Avatar } from 'antd';
-import ThermostatIcon from '@mui/icons-material/Thermostat';
-import WaterDropIcon from '@mui/icons-material/WaterDrop';
-import SpeedIcon from '@mui/icons-material/Speed';
+import { DatePicker, Drawer, Form, Input, Select, Space } from 'antd';
+
 import { UploadOutlined, UserOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import { useNavigate } from "react-router-dom";
 import { getCookie, removeCookie } from 'typescript-cookie'
+import RoomsCard from '../components/room_card';
+import { on } from 'events';
 
 const token = getCookie('bearer-hotel');
 
@@ -76,14 +77,43 @@ const get_rooms = async (navigate: ReturnType<typeof useNavigate>) => {
 
 const Rooms: React.FC = () => {
     const navigate = useNavigate();
+    const [rooms, setRooms] = useState<any[]>([]);
+    const [open, setOpen] = useState(false);
 
-    // Проверка токена при загрузке страницы
+    const showDrawer = () => {
+        setOpen(true);
+    };
+
+    const onClose = () => {
+        setOpen(false);
+    };
+
+    // Получение комнат при загрузке страницы
     useEffect(() => {
-        const token = getCookie('bearer-hotel');
         if (!token) {
             navigate("/login");
+            return;
         }
-        get_rooms(navigate);
+        // Получаем комнаты и сохраняем в state
+        const fetchRooms = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:8000/rooms/all', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Ошибка при получении данных');
+                }
+                const data = await response.json();
+                setRooms(data);
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        };
+        fetchRooms();
     }, [navigate]);
 
     const goToLoginPage = () => {
@@ -103,18 +133,17 @@ const Rooms: React.FC = () => {
             <Row gutter={40} wrap>
                 <Col span={18}>
                 <Flex wrap gap={20} className='h-[480px] overflow-x-scroll' vertical>
-                    {Array.from({ length: 12 }, (_, i) => (
-                    <Flex className='gap-4' key={i}>
-                        {}
-                        <Badge.Ribbon text="Занято" color="red" placement="end">
-                        <Card title={`Комната ${2*i}`} style={{ width: 300 }}>
-                            <p> <ThermostatIcon sx={{ fontSize: 20 }}/> Температура: <b>{Math.floor(Math.random()*15)+10}°C</b></p>
-                            <p> <WaterDropIcon sx={{ fontSize: 15 }} className='mr-1 ml-0.5'/> Влажность <b>{Math.floor(Math.random()*20)+60}%</b></p>
-                            <p> <SpeedIcon sx={{ fontSize: 20 }}/> Давление <b>{Math.floor(Math.random()*50)+730} мм.рт.ст.</b></p>
-                            <Button className='mt-3' onClick={() => open_door()}>Открыть дверь</Button>
-                        </Card>
-                        </Badge.Ribbon>                    
-                    </Flex>
+                    {rooms.map((room, i) => (
+                        <Flex className='gap-4' key={room.id || i}>
+                            <RoomsCard
+                                roomNumber={room.room_number}
+                                occupied={!room.is_available}
+                                temperature={room.temperature ?? 22}
+                                humidity={room.humidity ?? 45}
+                                pressure={room.pressure ?? 760}
+                                onOpenDoor={open_door}
+                            />
+                        </Flex>
                     ))}
                 </Flex>
                 </Col>
@@ -123,16 +152,127 @@ const Rooms: React.FC = () => {
                     <Card title="Наши комнаты" variant="borderless" className='w-100'>
                     <Flex className='gap-2' vertical>
                         <Button onClick={() => get_info(navigate)}>Добавить порт</Button>
-                        <Button onClick={() => get_rooms(navigate)}>Настроить комнаты</Button>
+                        <Button>Настроить комнаты</Button>
                         <Button>Удалить комнату</Button>
                     </Flex>
                     </Card>
                     <Card title="Заселить пользователя" variant="borderless" >
                     <Flex className='gap-2' vertical>
-                        <Button>Заселение</Button>
+                        <Button onClick={showDrawer}>Заселение</Button>
                         <Button>Услуги</Button>
                         <Button>Выселение</Button>
                     </Flex>
+                    <Drawer
+                        title="Форма заселения"
+                        closable={{ 'aria-label': 'Close Button' }}
+                        onClose={onClose}
+                        open={open}
+                    >
+                        <Form
+                            layout="vertical"
+                            name="register_guest"
+                            onFinish={async (values) => {
+                                const payload = {
+                                    last_name: values.lastName,
+                                    first_name: values.firstName,
+                                    email: values.email,
+                                    phone_number: values.phone,
+                                    room_number: values.room,
+                                    start_date: values.checkIn.format('YYYY-MM-DD'),
+                                    end_date: values.checkOut.format('YYYY-MM-DD'),
+                                };
+
+                                try {
+                                    const response = await fetch('http://127.0.0.1:8000/admin/checkin_guest', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Authorization': `Bearer ${token}`,
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify(payload),
+                                    });
+                                    if (!response.ok) {
+                                        throw new Error('Ошибка при заселении');
+                                    }
+                                    const data = await response.json();
+                                    console.log('Заселение успешно:', data);
+                                    onClose();
+                                } catch (error) {
+                                    console.error('Ошибка при заселении:', error);
+                                } finally {
+                                    const updatedRooms = await get_rooms(navigate);
+                                    setRooms(updatedRooms);
+                                    onClose();
+                                }
+                            }}
+                        >
+                            <Form.Item
+                                label="Фамилия"
+                                name="lastName"
+                                rules={[{ required: true, message: 'Пожалуйста, введите фамилию' }]}
+                            >
+                                <Input placeholder="Введите фамилию" />
+                            </Form.Item>
+                            <Form.Item
+                                label="Имя"
+                                name="firstName"
+                                rules={[{ required: true, message: 'Пожалуйста, введите имя' }]}
+                            >
+                                <Input placeholder="Введите имя" />
+                            </Form.Item>
+                            <Form.Item
+                                label="Email"
+                                name="email"
+                                rules={[
+                                    { required: true, message: 'Пожалуйста, введите email' },
+                                    { type: 'email', message: 'Некорректный email' }
+                                ]}
+                            >
+                                <Input placeholder="Введите email" />
+                            </Form.Item>
+                            <Form.Item
+                                label="Телефон"
+                                name="phone"
+                                rules={[{ required: true, message: 'Пожалуйста, введите телефон' }]}
+                            >
+                                <Input placeholder="Введите телефон" />
+                            </Form.Item>
+                            <Form.Item
+                                label="Комната"
+                                name="room"
+                                rules={[{ required: true, message: 'Пожалуйста, выберите комнату' }]}
+                            >
+                                <Select placeholder="Выберите комнату">
+                                    {rooms
+                                        .filter((room) => room.is_available)
+                                        .map((room) => (
+                                            <Select.Option key={room.id} value={room.room_number}>
+                                                {room.room_number}
+                                            </Select.Option>
+                                        ))}
+                                </Select>
+                            </Form.Item>
+                            <Form.Item
+                                label="Дата заезда"
+                                name="checkIn"
+                                rules={[{ required: true, message: 'Пожалуйста, выберите дату заезда' }]}
+                            >
+                                <DatePicker style={{ width: '100%' }} />
+                            </Form.Item>
+                            <Form.Item
+                                label="Дата выезда"
+                                name="checkOut"
+                                rules={[{ required: true, message: 'Пожалуйста, выберите дату выезда' }]}
+                            >
+                                <DatePicker style={{ width: '100%' }} />
+                            </Form.Item>
+                            <Form.Item>
+                                <Button type="primary" htmlType="submit" block>
+                                    Зарегистрировать
+                                </Button>
+                            </Form.Item>
+                        </Form>
+                    </Drawer>
                     </Card>
                 </Flex>
                 </Col>

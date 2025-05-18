@@ -8,6 +8,8 @@ import TestPage from './pages/bookings'; // Make sure this file exists
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from './pages/login';
 import MainScreen from './pages/main_screen';
+import { CssBaseline } from '@mui/material';
+// In your component tree:
 
 const { Content, Sider } = Layout;
 
@@ -53,6 +55,7 @@ class App extends Component {
   render() {
     return (
       <Router>
+        <CssBaseline />
         <Routes>
           <Route path='/' element={<MainScreen/>}/>
           <Route path='login' element={<Login />}/>

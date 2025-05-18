@@ -17,6 +17,7 @@ interface CheckInType {
 
 const columns: TableProps<CheckInType>['columns'] = [
   { title: 'ID', dataIndex: 'id', key: 'id' },
+  { title: 'Room Number', dataIndex: 'room_number', key: 'room_number' },
   { title: 'First Name', dataIndex: 'first_name', key: 'first_name' },
   { title: 'Last Name', dataIndex: 'last_name', key: 'last_name' },
   { title: 'Email', dataIndex: 'email', key: 'email' },
