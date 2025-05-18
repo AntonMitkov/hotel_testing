@@ -1,5 +1,3 @@
-import threading
-
 import data
 import socket
 
@@ -37,7 +35,7 @@ class Connection:
     def send_message(self, client_msg):
         global sock
         sock.sendall(client_msg.SerializeToString())
-        response = sock.recv(4096);
+        response = sock.recv(4096)
 
         con_resp = data.ControllerResponse()
         con_resp.ParseFromString(response)
